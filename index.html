@@ -2,52 +2,134 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>MTurk HIT Example</title>
-  <!-- No external dependencies; using JavaScript to handle MTurk parameters -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MTurk Task Submission</title>
+
+  <script src="https://s3.amazonaws.com/mturk-public/externalHIT_v1.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    .center-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 60vh;
+    }
+    .big-button {
+      font-size: 20px;
+      padding: 15px 30px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+    .big-button:hover {
+      background-color: #0056b3;
+    }
+    .input-box {
+      font-size: 18px;
+      padding: 10px;
+      width: 50%;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .submit-button {
+      font-size: 20px;
+      padding: 12px 25px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .submit-button:hover {
+      background-color: #218838;
+    }
+  </style>
 </head>
 <body>
-  <!-- Mechanical Turk External HIT Form -->
-  <form id="mturk_form" method="POST" action="https://www.mturk.com/mturk/externalSubmit">
-    <!-- Hidden field for the assignment ID (filled in by JavaScript) -->
-    <input type="hidden" name="assignmentId" id="assignmentId" value="">
 
-    <!-- Text input for worker's answer -->
-    <p>
-      <label for="answer">Enter your answer:</label>
-      <input type="text" name="answer" id="answer" />
+  <div class="center-container">
+    <h2>Complete the Task</h2>
+
+    <!-- Open Task Button -->
+    <p id="task-button-container">
+      <a id="task-link" href="#" target="_blank" class="big-button">
+        🔗 Open Task
+      </a>
     </p>
 
-    <!-- Submit button -->
-    <p>
-      <input type="submit" id="submitButton" value="Submit" />
-    </p>
-  </form>
+    <!-- ✅ MTurk Submission Form -->
+    <form id="mturk_form" name="mturk_form" method="POST">
+      <input type="hidden" name="assignmentId" id="assignmentId" value="">
+      <input type="hidden" name="workerId" id="workerId" value="">
+      <input type="hidden" name="document_url" id="document_url" value="">
+      <input type="hidden" name="submit" value="Submit" />
 
-  <!-- JavaScript to handle assignmentId and submission URL -->
-  <script type="text/javascript">
-    (function() {
-      // Parse URL parameters
-      var params = new URLSearchParams(window.location.search);
-      var assignmentId = params.get("assignmentId");
-      var turkSubmitTo = params.get("turkSubmitTo");
+      <p><strong>Enter your code here:</strong></p>
+      <input type="text" name="answer" id="answer" class="input-box" required />
 
-      // If HIT is not yet accepted (preview mode), disable the submit button
-      if (!assignmentId || assignmentId === "ASSIGNMENT_ID_NOT_AVAILABLE") {
-        document.getElementById("submitButton").disabled = true;
-      } else {
-        // If assignmentId is provided, insert it into the hidden field
-        document.getElementById("assignmentId").value = assignmentId;
+      <br><br>
+      <button type="button" class="submit-button" onclick="handleFormSubmit()">Submit</button>
+    </form>
+  </div>
+
+  <script>
+    function setMTurkParameters() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const assignmentId = urlParams.get('assignmentId');
+      const workerId = urlParams.get('workerId');
+      const documentUrl = urlParams.get('document_url');
+      const formUrl = urlParams.get('form_url');
+
+      if (assignmentId) document.getElementById('assignmentId').value = assignmentId;
+      if (workerId) document.getElementById('workerId').value = workerId;
+      if (documentUrl) document.getElementById('document_url').value = documentUrl;
+
+      // Build Open Task link
+      let taskUrl = "https://aman170211.github.io/Fill_page/";
+      if (assignmentId && workerId && documentUrl && formUrl) {
+        taskUrl += `?document_url=${encodeURIComponent(documentUrl)}&form_url=${encodeURIComponent(formUrl)}&assignmentId=${encodeURIComponent(assignmentId)}&workerId=${encodeURIComponent(workerId)}`;
       }
 
-      // Set the form's action to the correct endpoint (sandbox vs. production)
+      document.getElementById("task-link").href = taskUrl;
+      document.getElementById("task-link").style.display = "inline-block";
+
+      // Set correct MTurk submission URL
+      const mturkForm = document.getElementById("mturk_form");
+      const turkSubmitTo = urlParams.get("turkSubmitTo");
       if (turkSubmitTo) {
-        // Remove any trailing slash from turkSubmitTo
-        if (turkSubmitTo.endsWith("/")) {
-          turkSubmitTo = turkSubmitTo.slice(0, -1);
-        }
-        document.getElementById("mturk_form").action = turkSubmitTo + "/mturk/externalSubmit";
+        mturkForm.action = `${turkSubmitTo.replace(/\/$/, "")}/mturk/externalSubmit`;
+      } else {
+        mturkForm.action = window.location.hostname.includes("workersandbox")
+          ? "https://workersandbox.mturk.com/mturk/externalSubmit"
+          : "https://www.mturk.com/mturk/externalSubmit";
       }
-    })();
-  </script>
-</body>
-</html>
+
+      // Optional: disable submit button in preview
+      if (assignmentId === "ASSIGNMENT_ID_NOT_AVAILABLE") {
+        const btn = document.querySelector(".submit-button");
+        btn.disabled = true;
+        btn.textContent = "Accept HIT to Submit";
+      }
+    }
+
+    function handleFormSubmit() {
+      const answer = document.getElementById("answer").value.trim();
+      const assignmentId = document.getElementById("assignmentId").value;
+
+      if (!answer) {
+        alert("Please enter your code before submitting.");
+        return;
+      }
+
+      if (!assignmentId || assignmentId === "ASSIGNMENT_ID_NOT_AVAILABLE") {
