@@ -1,148 +1,63 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MTurk Task Submission</title>
-
-  <script src="https://s3.amazonaws.com/mturk-public/externalHIT_v1.js"></script>
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 20px;
-    }
-    .center-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 60vh;
-    }
-    .big-button {
-      font-size: 20px;
-      padding: 15px 30px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      text-decoration: none;
-      margin-bottom: 20px;
-      display: inline-block;
-    }
-    .big-button:hover {
-      background-color: #0056b3;
-    }
-    .input-box {
-      font-size: 18px;
-      padding: 10px;
-      width: 50%;
-      text-align: center;
-      margin-bottom: 15px;
-    }
-    .submit-button {
-      font-size: 20px;
-      padding: 12px 25px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .submit-button:hover {
-      background-color: #218838;
-    }
-  </style>
+  <title>MTurk Submission</title>
 </head>
 <body>
+  <h2>Enter your answer</h2>
 
-  <div class="center-container">
-    <h2>Complete the Task</h2>
+  <input type="text" id="userAnswer" placeholder="Type your answer here" required />
 
-    <!-- Open Task Button -->
-    <p id="task-button-container">
-      <a id="task-link" href="#" target="_blank" class="big-button">
-        🔗 Open Task
-      </a>
-    </p>
-
-    <!-- ✅ MTurk Submission Form -->
-    <form id="mturk_form" method="POST">
-      <input type="hidden" name="assignmentId" id="assignmentId" value="">
-      <input type="hidden" name="workerId" id="workerId" value="">
-      <input type="hidden" name="document_url" id="document_url" value="">
-      <input type="hidden" name="submit" value="Submit" />
-      <input type="hidden" name="answer" id="answerField" value=""> <!-- This is what gets submitted -->
-
-      <!-- User input field (visible) -->
-      <p><strong>Enter your code here:</strong></p>
-      <input type="text" id="userInput" class="input-box" required />
-
-      <br><br>
-      <button type="button" class="submit-button" onclick="handleFormSubmit()">Submit</button>
-    </form>
-  </div>
+  <br><br>
+  <button onclick="submitToMTurk()">Submit</button>
 
   <script>
-    function setMTurkParameters() {
+    function submitToMTurk() {
       const urlParams = new URLSearchParams(window.location.search);
-      const assignmentId = urlParams.get('assignmentId');
-      const workerId = urlParams.get('workerId');
-      const documentUrl = urlParams.get('document_url');
-      const formUrl = urlParams.get('form_url');
-
-      if (assignmentId) document.getElementById('assignmentId').value = assignmentId;
-      if (workerId) document.getElementById('workerId').value = workerId;
-      if (documentUrl) document.getElementById('document_url').value = documentUrl;
-
-      // Build Open Task link
-      let taskUrl = "https://aman170211.github.io/Fill_page/";
-      if (assignmentId && workerId && documentUrl && formUrl) {
-        taskUrl += `?document_url=${encodeURIComponent(documentUrl)}&form_url=${encodeURIComponent(formUrl)}&assignmentId=${encodeURIComponent(assignmentId)}&workerId=${encodeURIComponent(workerId)}`;
-      }
-
-      document.getElementById("task-link").href = taskUrl;
-      document.getElementById("task-link").style.display = "inline-block";
-
-      // Set MTurk submission endpoint
-      const mturkForm = document.getElementById("mturk_form");
-      mturkForm.action = window.location.hostname.includes("workersandbox")
-        ? "https://workersandbox.mturk.com/mturk/externalSubmit"
-        : "https://www.mturk.com/mturk/externalSubmit";
-
-      // Disable submit in preview mode
-      if (assignmentId === "ASSIGNMENT_ID_NOT_AVAILABLE") {
-        const btn = document.querySelector(".submit-button");
-        btn.disabled = true;
-        btn.textContent = "Accept HIT to Submit";
-      }
-    }
-
-    function handleFormSubmit() {
-      const userInput = document.getElementById("userInput").value.trim();
-      const assignmentId = document.getElementById("assignmentId").value;
-
-      if (!userInput) {
-        alert("Please enter your completion code.");
-        return;
-      }
+      const assignmentId = urlParams.get("assignmentId");
+      const answer = document.getElementById("userAnswer").value;
 
       if (!assignmentId || assignmentId === "ASSIGNMENT_ID_NOT_AVAILABLE") {
         alert("Please accept the HIT before submitting.");
         return;
       }
 
-      // Assign value to hidden answer field
-      document.getElementById("answerField").value = userInput;
+      if (!answer.trim()) {
+        alert("Please enter an answer before submitting.");
+        return;
+      }
 
-      // Submit the form
-      document.getElementById("mturk_form").submit();
+      // Create the form
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = window.location.hostname.includes("workersandbox")
+        ? "https://workersandbox.mturk.com/mturk/externalSubmit"
+        : "https://www.mturk.com/mturk/externalSubmit";
+
+      // assignmentId
+      const inputAssignmentId = document.createElement("input");
+      inputAssignmentId.type = "hidden";
+      inputAssignmentId.name = "assignmentId";
+      inputAssignmentId.value = assignmentId;
+      form.appendChild(inputAssignmentId);
+
+      // answer
+      const inputAnswer = document.createElement("input");
+      inputAnswer.type = "hidden";
+      inputAnswer.name = "answer";
+      inputAnswer.value = answer;
+      form.appendChild(inputAnswer);
+
+      // submit flag (optional but good practice)
+      const inputSubmit = document.createElement("input");
+      inputSubmit.type = "hidden";
+      inputSubmit.name = "submit";
+      inputSubmit.value = "Submit";
+      form.appendChild(inputSubmit);
+
+      document.body.appendChild(form);
+      form.submit();
     }
-
-    setMTurkParameters();
   </script>
-
 </body>
 </html>
