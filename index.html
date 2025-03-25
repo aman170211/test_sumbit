@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MTurk Task Submission</title>
 
-  
+  <script src="https://s3.amazonaws.com/mturk-public/externalHIT_v1.js"></script>
 
   <style>
     body {
@@ -71,8 +71,6 @@
     <!-- ✅ MTurk Submission Form -->
     <form id="mturk_form" method="POST" name="mturk_form" action="https://www.mturk.com/mturk/externalSubmit">
       <input type="hidden" name="assignmentId" id="assignmentId" value="">
-      <input type="hidden" name="workerId" id="workerId" value="">
-      <input type="hidden" name="document_url" id="document_url" value="">
 
       <p><strong>Enter your code here:</strong></p>
       <input type="text" name="answer" id="answer" class="input-box" required />
@@ -91,13 +89,13 @@
       const formUrl = urlParams.get('form_url');
 
       if (assignmentId) document.getElementById('assignmentId').value = assignmentId;
-      if (workerId) document.getElementById('workerId').value = workerId;
-      if (documentUrl) document.getElementById('document_url').value = documentUrl;
+      // if (workerId) document.getElementById('workerId').value = workerId;
+      // if (documentUrl) document.getElementById('document_url').value = documentUrl;
 
       // Keep your task URL exactly as it is
       let taskUrl = "https://aman170211.github.io/Fill_page/";
       if (assignmentId && workerId && documentUrl && formUrl) {
-        taskUrl += `?document_url=${encodeURIComponent(documentUrl)}&form_url=${encodeURIComponent(formUrl)}%26assignmentId=${encodeURIComponent(assignmentId)}%26workerId=${encodeURIComponent(workerId)}`;
+        taskUrl += ?document_url=${encodeURIComponent(documentUrl)}&form_url=${encodeURIComponent(formUrl)}%26assignmentId=${encodeURIComponent(assignmentId)}%26workerId=${encodeURIComponent(workerId)};
       }
 
       document.getElementById("task-link").href = taskUrl;
