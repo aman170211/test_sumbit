@@ -1,125 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MTurk Task Submission</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MTurk Task Submission</title>
 
-    <script src="https://s3.amazonaws.com/mturk-public/externalHIT_v1.js"></script>
+  <script src="https://s3.amazonaws.com/mturk-public/externalHIT_v1.js"></script>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
-        }
-        .center-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 60vh;
-        }
-        .big-button {
-            font-size: 20px;
-            padding: 15px 30px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            text-decoration: none;
-            margin-bottom: 20px;
-            display: inline-block;
-        }
-        .big-button:hover {
-            background-color: #0056b3;
-        }
-        .input-box {
-            font-size: 18px;
-            padding: 10px;
-            width: 50%;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        .submit-button {
-            font-size: 20px;
-            padding: 12px 25px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-        .submit-button:hover {
-            background-color: #218838;
-        }
-    </style>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    .center-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 60vh;
+    }
+    .big-button {
+      font-size: 20px;
+      padding: 15px 30px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+    .big-button:hover {
+      background-color: #0056b3;
+    }
+    .input-box {
+      font-size: 18px;
+      padding: 10px;
+      width: 50%;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .submit-button {
+      font-size: 20px;
+      padding: 12px 25px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .submit-button:hover {
+      background-color: #218838;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="center-container">
-        <h2>Complete the Task</h2>
+  <div class="center-container">
+    <h2>Complete the Task</h2>
 
-        <!-- Button to open the task URL with all required parameters -->
-        <p id="task-button-container">
-            <a id="task-link" href="#" target="_blank" class="big-button">
-                🔗 Open Task
-            </a>
-        </p>
+    <!-- Open Task Button -->
+    <p id="task-button-container">
+      <a id="task-link" href="#" target="_blank" class="big-button">
+        🔗 Open Task
+      </a>
+    </p>
 
-        <!-- Form for MTurk submission -->
-        <form id="mturk_form" name="mturk_form" method="post">
-            <!-- Hidden fields for assignmentId and workerId -->
-            <input type="hidden" name="assignmentId" id="assignmentId" value="">
-            <input type="hidden" name="workerId" id="workerId" value="">
-            <input type="hidden" name="document_url" id="document_url" value="">
+    <!-- ✅ MTurk Submission Form -->
+    <form id="mturk_form" method="POST">
+      <input type="hidden" name="assignmentId" id="assignmentId" value="">
+      <input type="hidden" name="workerId" id="workerId" value="">
+      <input type="hidden" name="document_url" id="document_url" value="">
+      <input type="hidden" name="submit" value="Submit" />
+      <input type="hidden" name="answer" id="answerField" value=""> <!-- Will be set dynamically -->
+    </form>
 
-            <p><strong>Enter your code here:</strong></p>
-            <input type="text" name="answer" class="input-box" required>
+    <!-- Visible input field for user to enter answer -->
+    <p><strong>Enter your code here:</strong></p>
+    <input type="text" id="userInput" class="input-box" required />
 
-            <br><br>
-            <input type="submit" class="submit-button" value="Submit">
-        </form>
-    </div>
+    <br><br>
+    <button class="submit-button" onclick="handleFormSubmit()">Submit</button>
+  </div>
 
-    <script>
-        function setMTurkParameters() {
-            var urlParams = new URLSearchParams(window.location.search);
-            var assignmentId = urlParams.get('assignmentId');
-            var workerId = urlParams.get('workerId');
-            var documentUrl = urlParams.get('document_url');
+  <script>
+    function setMTurkParameters() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const assignmentId = urlParams.get('assignmentId');
+      const workerId = urlParams.get('workerId');
+      const documentUrl = urlParams.get('document_url');
+      const formUrl = urlParams.get('form_url');
 
-            if (assignmentId) {
-                document.getElementById('assignmentId').value = assignmentId;
-            }
-            if (workerId) {
-                document.getElementById('workerId').value = workerId;
-            }
-            if (documentUrl) {
-                document.getElementById('document_url').value = documentUrl;
-            }
+      if (assignmentId) document.getElementById('assignmentId').value = assignmentId;
+      if (workerId) document.getElementById('workerId').value = workerId;
+      if (documentUrl) document.getElementById('document_url').value = documentUrl;
 
-            // ✅ Set the Open Task button to include all parameters
-            var taskUrl = "https://aman170211.github.io/Fill_page/";
-            if (assignmentId && workerId && documentUrl) {
-                taskUrl += `?assignmentId=${encodeURIComponent(assignmentId)}&workerId=${encodeURIComponent(workerId)}&document_url=${encodeURIComponent(documentUrl)}`;
-            }
+      // Build Open Task link
+      let taskUrl = "https://aman170211.github.io/Fill_page/";
+      if (assignmentId && workerId && documentUrl && formUrl) {
+        taskUrl += `?document_url=${encodeURIComponent(documentUrl)}&form_url=${encodeURIComponent(formUrl)}&assignmentId=${encodeURIComponent(assignmentId)}&workerId=${encodeURIComponent(workerId)}`;
+      }
 
-            document.getElementById("task-link").href = taskUrl;
-            document.getElementById("task-link").style.display = "inline-block";
+      document.getElementById("task-link").href = taskUrl;
+      document.getElementById("task-link").style.display = "inline-block";
 
-            // ✅ Detect Sandbox or Production and set form action dynamically
-            var mturkForm = document.getElementById("mturk_form");
-            if (window.location.hostname.includes("workersandbox")) {
-                mturkForm.action = "https://workersandbox.mturk.com/mturk/externalSubmit";
-            } else {
-                mturkForm.action = "https://www.mturk.com/mturk/externalSubmit";
-            }
-        }
+      // Set MTurk submission endpoint
+      const mturkForm = document.getElementById("mturk_form");
+      mturkForm.action = window.location.hostname.includes("workersandbox")
+        ? "https://workersandbox.mturk.com/mturk/externalSubmit"
+        : "https://www.mturk.com/mturk/externalSubmit";
 
-        setMTurkParameters();
-    </script>
+      // Disable submission in preview mode
+      if (assignmentId === "ASSIGNMENT_ID_NOT_AVAILABLE") {
+        const btn = document.querySelector(".submit-button");
+        btn.disabled = true;
+        btn.textContent = "Accept HIT to Submit";
+      }
+    }
+
+    function handleFormSubmit() {
+      const userInput = document.getElementById("userInput").value.trim();
+      if (!userInput) {
+        alert("Please enter your code before submitting.");
+        return;
+      }
+
+      // Fill the hidden answer field
+      document.getElementById("answerField").value = userInput;
+
+      // Submit the form
+      document.getElementById("mturk_form").submit();
+    }
+
+    setMTurkParameters();
+  </script>
 
 </body>
 </html>
