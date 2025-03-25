@@ -1,63 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>MTurk Submission</title>
+  <meta charset="UTF-8" />
+  <title>MTurk HIT Example</title>
+  <!-- No external dependencies; using JavaScript to handle MTurk parameters -->
 </head>
 <body>
-  <h2>Enter your answer</h2>
+  <!-- Mechanical Turk External HIT Form -->
+  <form id="mturk_form" method="POST" action="https://www.mturk.com/mturk/externalSubmit">
+    <!-- Hidden field for the assignment ID (filled in by JavaScript) -->
+    <input type="hidden" name="assignmentId" id="assignmentId" value="">
 
-  <input type="text" id="userAnswer" placeholder="Type your answer here" required />
+    <!-- Text input for worker's answer -->
+    <p>
+      <label for="answer">Enter your answer:</label>
+      <input type="text" name="answer" id="answer" />
+    </p>
 
-  <br><br>
-  <button onclick="submitToMTurk()">Submit</button>
+    <!-- Submit button -->
+    <p>
+      <input type="submit" id="submitButton" value="Submit" />
+    </p>
+  </form>
 
-  <script>
-    function submitToMTurk() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const assignmentId = urlParams.get("assignmentId");
-      const answer = document.getElementById("userAnswer").value;
+  <!-- JavaScript to handle assignmentId and submission URL -->
+  <script type="text/javascript">
+    (function() {
+      // Parse URL parameters
+      var params = new URLSearchParams(window.location.search);
+      var assignmentId = params.get("assignmentId");
+      var turkSubmitTo = params.get("turkSubmitTo");
 
+      // If HIT is not yet accepted (preview mode), disable the submit button
       if (!assignmentId || assignmentId === "ASSIGNMENT_ID_NOT_AVAILABLE") {
-        alert("Please accept the HIT before submitting.");
-        return;
+        document.getElementById("submitButton").disabled = true;
+      } else {
+        // If assignmentId is provided, insert it into the hidden field
+        document.getElementById("assignmentId").value = assignmentId;
       }
 
-      if (!answer.trim()) {
-        alert("Please enter an answer before submitting.");
-        return;
+      // Set the form's action to the correct endpoint (sandbox vs. production)
+      if (turkSubmitTo) {
+        // Remove any trailing slash from turkSubmitTo
+        if (turkSubmitTo.endsWith("/")) {
+          turkSubmitTo = turkSubmitTo.slice(0, -1);
+        }
+        document.getElementById("mturk_form").action = turkSubmitTo + "/mturk/externalSubmit";
       }
-
-      // Create the form
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = window.location.hostname.includes("workersandbox")
-        ? "https://workersandbox.mturk.com/mturk/externalSubmit"
-        : "https://www.mturk.com/mturk/externalSubmit";
-
-      // assignmentId
-      const inputAssignmentId = document.createElement("input");
-      inputAssignmentId.type = "hidden";
-      inputAssignmentId.name = "assignmentId";
-      inputAssignmentId.value = assignmentId;
-      form.appendChild(inputAssignmentId);
-
-      // answer
-      const inputAnswer = document.createElement("input");
-      inputAnswer.type = "hidden";
-      inputAnswer.name = "answer";
-      inputAnswer.value = answer;
-      form.appendChild(inputAnswer);
-
-      // submit flag (optional but good practice)
-      const inputSubmit = document.createElement("input");
-      inputSubmit.type = "hidden";
-      inputSubmit.name = "submit";
-      inputSubmit.value = "Submit";
-      form.appendChild(inputSubmit);
-
-      document.body.appendChild(form);
-      form.submit();
-    }
+    })();
   </script>
 </body>
 </html>
