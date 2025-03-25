@@ -67,7 +67,7 @@
     </p>
 
     <!-- ✅ MTurk Submission Form -->
-    <form id="mturk_form" method="POST" name="mturk_form" action="https://www.mturk.com/mturk/externalSubmit">
+    <form id="mturk_form" method="POST" name="mturk_form" action="https://workersandbox.mturk.com/mturk/externalSubmit">
       <input type="hidden" name="assignmentId" id="assignmentId" value="">
 
       <p><strong>Enter your code here:</strong></p>
@@ -85,7 +85,7 @@
       const workerId = urlParams.get('workerId');
       const documentUrl = urlParams.get('document_url');
       const formUrl = urlParams.get('form_url');
-      const turkSubmitTo = params.get("turkSubmitTo");
+      //const turkSubmitTo = params.get("turkSubmitTo");
 
       if (assignmentId) document.getElementById('assignmentId').value = assignmentId;
       // if (workerId) document.getElementById('workerId').value = workerId;
@@ -107,13 +107,7 @@
       //   : "https://www.mturk.com/mturk/externalSubmit";
 
       // Set the form's action to the correct endpoint (sandbox vs. production)
-      if (turkSubmitTo) {
-        // Remove any trailing slash from turkSubmitTo
-        if (turkSubmitTo.endsWith("/")) {
-          turkSubmitTo = turkSubmitTo.slice(0, -1);
-        }
-        document.getElementById("mturk_form").action = turkSubmitTo + "/mturk/externalSubmit";
-      }
+     
 
       // Disable in preview
       if (assignmentId === "ASSIGNMENT_ID_NOT_AVAILABLE") {
