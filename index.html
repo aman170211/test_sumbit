@@ -69,17 +69,16 @@
     </p>
 
     <!-- ✅ MTurk Submission Form -->
-    <form id="mturk_form" name="mturk_form" method="POST">
+    <form id="mturk_form" method="POST" name="mturk_form" action="https://www.mturk.com/mturk/externalSubmit">
       <input type="hidden" name="assignmentId" id="assignmentId" value="">
       <input type="hidden" name="workerId" id="workerId" value="">
       <input type="hidden" name="document_url" id="document_url" value="">
-      <input type="hidden" name="submit" value="Submit" />
 
       <p><strong>Enter your code here:</strong></p>
       <input type="text" name="answer" id="answer" class="input-box" required />
 
       <br><br>
-      <input type="button" class="submit-button" value="Submit" onclick="submitToMTurk()" />
+      <input type="submit" class="submit-button" id="submitButton" value="Submit" />
     </form>
   </div>
 
