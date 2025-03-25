@@ -101,10 +101,10 @@
       document.getElementById("task-link").style.display = "inline-block";
 
       // Detect Sandbox vs Prod
-      // const mturkForm = document.getElementById("mturk_form");
-      // mturkForm.action = window.location.hostname.includes("workersandbox")
-      //   ? "https://workersandbox.mturk.com/mturk/externalSubmit"
-      //   : "https://www.mturk.com/mturk/externalSubmit";
+      const mturkForm = document.getElementById("mturk_form");
+      mturkForm.action = window.location.hostname.includes("workersandbox")
+        ? "https://workersandbox.mturk.com/mturk/externalSubmit"
+        : "https://www.mturk.com/mturk/externalSubmit";
 
       // Set the form's action to the correct endpoint (sandbox vs. production)
      
