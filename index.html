@@ -102,6 +102,13 @@
 
       // Detect Sandbox vs Prod
       const mturkForm = document.getElementById("mturk_form");
+      const isSandbox = window.location.hostname.includes("workersandbox");
+              if (isSandbox) {
+            console.log("✅ Running in MTurk Sandbox");
+          } else {
+            console.log("🚀 Running in MTurk Production");
+          }
+
       mturkForm.action = window.location.hostname.includes("workersandbox")
         ? "https://workersandbox.mturk.com/mturk/externalSubmit"
         : "https://www.mturk.com/mturk/externalSubmit";
