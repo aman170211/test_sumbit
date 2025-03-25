@@ -74,15 +74,15 @@
       <input type="hidden" name="workerId" id="workerId" value="">
       <input type="hidden" name="document_url" id="document_url" value="">
       <input type="hidden" name="submit" value="Submit" />
-      <input type="hidden" name="answer" id="answerField" value=""> <!-- Will be set dynamically -->
+      <input type="hidden" name="answer" id="answerField" value=""> <!-- This is what gets submitted -->
+
+      <!-- User input field (visible) -->
+      <p><strong>Enter your code here:</strong></p>
+      <input type="text" id="userInput" class="input-box" required />
+
+      <br><br>
+      <button type="button" class="submit-button" onclick="handleFormSubmit()">Submit</button>
     </form>
-
-    <!-- Visible input field for user to enter answer -->
-    <p><strong>Enter your code here:</strong></p>
-    <input type="text" id="userInput" class="input-box" required />
-
-    <br><br>
-    <button class="submit-button" onclick="handleFormSubmit()">Submit</button>
   </div>
 
   <script>
@@ -112,7 +112,7 @@
         ? "https://workersandbox.mturk.com/mturk/externalSubmit"
         : "https://www.mturk.com/mturk/externalSubmit";
 
-      // Disable submission in preview mode
+      // Disable submit in preview mode
       if (assignmentId === "ASSIGNMENT_ID_NOT_AVAILABLE") {
         const btn = document.querySelector(".submit-button");
         btn.disabled = true;
@@ -122,12 +122,19 @@
 
     function handleFormSubmit() {
       const userInput = document.getElementById("userInput").value.trim();
+      const assignmentId = document.getElementById("assignmentId").value;
+
       if (!userInput) {
-        alert("Please enter your code before submitting.");
+        alert("Please enter your completion code.");
         return;
       }
 
-      // Fill the hidden answer field
+      if (!assignmentId || assignmentId === "ASSIGNMENT_ID_NOT_AVAILABLE") {
+        alert("Please accept the HIT before submitting.");
+        return;
+      }
+
+      // Assign value to hidden answer field
       document.getElementById("answerField").value = userInput;
 
       // Submit the form
